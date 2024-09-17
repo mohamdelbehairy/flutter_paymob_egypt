@@ -1,7 +1,7 @@
 
 # Flutter Paymob Egypt
 
-Easily accept payments Cards through [Paymob](https://paymob.pk) in your Flutter app.
+Easily accept payments Cards through [Paymob](https://accept.paymob.com/portal2/en/home) in your Flutter app.
 
 ## 🚀  Installation
 
