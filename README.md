@@ -46,6 +46,6 @@ To install the Flutter PayPal Payment Package, follow these steps
 
 If you would like to support me, please consider making a donation through one of the following links:
 
-* [PayPal](paypal.me/Elbehairy20)
+* [PayPal](https://paypal.me/Elbehairy20)
 
 Thank you for your support!
