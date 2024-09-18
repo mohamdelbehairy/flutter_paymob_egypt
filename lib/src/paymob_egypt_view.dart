@@ -90,8 +90,10 @@ class _PaymobEgyptViewState extends State<PaymobEgyptView> {
       });
     }
 
-    _isLoading = false;
-    setState(() {});
+    if (mounted) {
+      _isLoading = false;
+      setState(() {});
+    }
   }
 
   void _startPayment() async {
@@ -112,8 +114,8 @@ class _PaymobEgyptViewState extends State<PaymobEgyptView> {
           backgroundColor: Colors.grey.shade50),
       body: _isLoading
           ? Center(
-              child:
-                  widget.loadingIndicator ?? const CircularProgressIndicator())
+              child: widget.loadingIndicator ??
+                  const CircularProgressIndicator(color: Colors.blue))
           : _isError
               ? Center(child: Text(_error))
               : Stack(
@@ -146,6 +148,7 @@ class _PaymobEgyptViewState extends State<PaymobEgyptView> {
                             height: 3,
                             child: LinearProgressIndicator(
                               value: _progress,
+                              color: Colors.blue,
                             ),
                           )
                         : const SizedBox(),

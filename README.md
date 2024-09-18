@@ -3,6 +3,10 @@
 
 Easily accept payments Cards through [Paymob](https://accept.paymob.com/portal2/en/home) in your Flutter app.
 
+<p align='center'>
+    <img src="https://github.com/user-attachments/assets/d8633bb6-2862-4a71-a546-365d8bde198b" />
+</p>
+
 ## 🚀  Installation
 
 To install the Flutter PayPal Payment Package, follow these steps
@@ -10,7 +14,7 @@ To install the Flutter PayPal Payment Package, follow these steps
 1. Add the package to your project's dependencies in the `pubspec.yaml` file:
    ```yaml
    dependencies:
-     flutter_paymob_egypt: ^0.0.1
+     flutter_paymob_egypt: ^0.0.3
     ``` 
 2. Run the following command to fetch the package:
 
