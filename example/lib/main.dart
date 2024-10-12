@@ -39,7 +39,7 @@ class FluterPaymobEgypt extends StatelessWidget {
                   integrationID:
                       '123456', // from dashboard Select Developers -> Payment Integrations -> Online Card ID
                 ),
-                totalPrice: 10000, // 100 EGP
+                totalPrice: 100, // required pay with Egypt currency
                 loadingIndicator: null, // optional
                 billingData: null, // optional => your data
                 items: const [], // optional
