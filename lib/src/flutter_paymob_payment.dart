@@ -7,8 +7,8 @@ import 'billing_data.dart';
 import 'items.dart';
 import 'paymob_service.dart';
 
-class PaymobEgyptView extends StatefulWidget {
-  const PaymobEgyptView(
+class FlutterPaymobPayment extends StatefulWidget {
+  const FlutterPaymobPayment(
       {super.key,
       required this.cardInfo,
       required this.totalPrice,
@@ -25,10 +25,10 @@ class PaymobEgyptView extends StatefulWidget {
   final Widget? loadingIndicator;
 
   @override
-  State<PaymobEgyptView> createState() => _PaymobEgyptViewState();
+  State<FlutterPaymobPayment> createState() => _FlutterPaymobPaymentState();
 }
 
-class _PaymobEgyptViewState extends State<PaymobEgyptView> {
+class _FlutterPaymobPaymentState extends State<FlutterPaymobPayment> {
   InAppWebViewController? _webViewController;
 
   String? _authToken, _orderID, _token;
@@ -132,9 +132,50 @@ class _PaymobEgyptViewState extends State<PaymobEgyptView> {
                         if (url != null &&
                             url.queryParameters.containsKey('success') &&
                             url.queryParameters['success'] == 'true') {
-                          var orderID = await getOrderInfo(
+                          var orderData = await getOrderInfo(
                               authToken: _authToken!, orderID: _orderID!);
-                          widget.successResult(orderID);
+
+                          Map<String, dynamic> data = {
+                            'error': orderData['error'],
+                            'success': orderData['data']['success'],
+                            'amount_cents': orderData['data']['amount_cents'],
+                            'order_id': orderData['data']['order']['id'],
+                            'created_at': orderData['data']['order']
+                                ['created_at'],
+                            'delivery_needed': orderData['data']['order']
+                                ['delivery_needed'],
+                            'currency': orderData['data']['payment_key_claims']
+                                ['currency'],
+                            'first_name': orderData['data']
+                                    ['payment_key_claims']['billing_data']
+                                ['first_name'],
+                            'last_name': orderData['data']['payment_key_claims']
+                                ['billing_data']['last_name'],
+                            'street': orderData['data']['payment_key_claims']
+                                ['billing_data']['street'],
+                            'building': orderData['data']['payment_key_claims']
+                                ['billing_data']['building'],
+                            'floor': orderData['data']['payment_key_claims']
+                                ['billing_data']['floor'],
+                            'apartment': orderData['data']['payment_key_claims']
+                                ['billing_data']['apartment'],
+                            'city': orderData['data']['payment_key_claims']
+                                ['billing_data']['city'],
+                            'email': orderData['data']['payment_key_claims']
+                                ['billing_data']['email'],
+                            'phone_number': orderData['data']
+                                    ['payment_key_claims']['billing_data']
+                                ['phone_number'],
+                            'shipping_method': orderData['data']
+                                    ['payment_key_claims']['billing_data']
+                                ['shipping_method'],
+                            'postal_code': orderData['data']
+                                    ['payment_key_claims']['billing_data']
+                                ['postal_code'],
+                            'state': orderData['data']['payment_key_claims']
+                                ['billing_data']['state'],
+                          };
+                          widget.successResult(data);
                         }
                       },
                       onProgressChanged: (controller, progress) {

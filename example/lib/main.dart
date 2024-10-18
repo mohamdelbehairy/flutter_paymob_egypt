@@ -30,7 +30,7 @@ class FluterPaymobEgypt extends StatelessWidget {
         child: ElevatedButton(
           onPressed: () {
             Navigator.of(context).push(MaterialPageRoute(
-              builder: (BuildContext context) => PaymobEgyptView(
+              builder: (BuildContext context) => FlutterPaymobPayment(
                 cardInfo: CardInfo(
                   apiKey:
                       "YOUR_API_KEY", // from dashboard Select Settings -> Account Info -> API Key

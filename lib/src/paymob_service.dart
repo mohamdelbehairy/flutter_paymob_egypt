@@ -41,7 +41,7 @@ Future<Map> getOrderID(
         "items": items?.map((e) => e.toJson()).toList() ?? [],
       },
     );
-
+    // log('orderID: ${orderID.data['id']}');
     return {'error': 'false', 'id': orderID.data['id'].toString()};
   } on DioException catch (e) {
     return {
@@ -70,7 +70,7 @@ Future<Map> getFinalToken(
       "integration_id": integrationID,
       "billing_data": billingData?.toJson() ?? BillingData().toJson(),
     });
-
+  //  log('finalToken: ${finalToken.data['token']}');
     return {
       'error': 'false',
       'token': finalToken.data['token'],
