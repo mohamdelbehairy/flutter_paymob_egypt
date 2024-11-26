@@ -1,6 +1,6 @@
 name: flutter_paymob_egypt
 description: Easily accept payments Cards through Paymob in your Flutter app.
-version: 0.0.5
+version: 0.0.6
 homepage: https://github.com/mohamdelbehairy/flutter_paymob_egypt
 
 environment:

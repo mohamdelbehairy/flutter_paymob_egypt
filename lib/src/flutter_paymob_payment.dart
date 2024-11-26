@@ -16,13 +16,15 @@ class FlutterPaymobPayment extends StatefulWidget {
       required this.errorResult,
       this.billingData,
       this.items,
-      this.loadingIndicator});
+      this.loadingIndicator,
+      this.appBar});
   final CardInfo cardInfo;
   final num totalPrice;
   final Function successResult, errorResult;
   final BillingData? billingData;
   final List<Items>? items;
   final Widget? loadingIndicator;
+  final PreferredSizeWidget? appBar;
 
   @override
   State<FlutterPaymobPayment> createState() => _FlutterPaymobPaymentState();
@@ -41,11 +43,11 @@ class _FlutterPaymobPaymentState extends State<FlutterPaymobPayment> {
   void initState() {
     super.initState();
     if (mounted) {
-      getToken();
+      _getToken();
     }
   }
 
-  void getToken() async {
+  void _getToken() async {
     var authToken = await getAuthToken(apiKey: widget.cardInfo.apiKey);
     if (authToken['error'] == 'false') {
       log('step 1');
@@ -108,10 +110,11 @@ class _FlutterPaymobPaymentState extends State<FlutterPaymobPayment> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.grey.shade50,
-      appBar: AppBar(
-          centerTitle: true,
-          title: const Text('Paymob Payment'),
-          backgroundColor: Colors.grey.shade50),
+      appBar: widget.appBar ??
+          AppBar(
+              centerTitle: true,
+              title: const Text('Paymob Payment'),
+              backgroundColor: Colors.grey.shade50),
       body: _isLoading
           ? Center(
               child: widget.loadingIndicator ??
