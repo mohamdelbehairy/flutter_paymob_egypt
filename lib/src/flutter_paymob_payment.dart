@@ -38,6 +38,7 @@ class _FlutterPaymobPaymentState extends State<FlutterPaymobPayment> {
   bool _isError = false;
   double _progress = 0;
   String _error = '';
+  bool automaticallyImplyLeading = false;
 
   @override
   void initState() {
@@ -75,6 +76,7 @@ class _FlutterPaymobPaymentState extends State<FlutterPaymobPayment> {
           setState(() {
             _isError = true;
             _error = finalToken['message'];
+            automaticallyImplyLeading = true;
           });
         }
       } else {
@@ -82,6 +84,7 @@ class _FlutterPaymobPaymentState extends State<FlutterPaymobPayment> {
         setState(() {
           _isError = true;
           _error = orderID['message'];
+          automaticallyImplyLeading = true;
         });
       }
     } else {
@@ -89,6 +92,7 @@ class _FlutterPaymobPaymentState extends State<FlutterPaymobPayment> {
       setState(() {
         _isError = true;
         _error = authToken['message'];
+        automaticallyImplyLeading = true;
       });
     }
 
@@ -108,96 +112,114 @@ class _FlutterPaymobPaymentState extends State<FlutterPaymobPayment> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.grey.shade50,
-      appBar: widget.appBar ??
-          AppBar(
-              centerTitle: true,
-              title: const Text('Paymob Payment'),
-              backgroundColor: Colors.grey.shade50),
-      body: _isLoading
-          ? Center(
-              child: widget.loadingIndicator ??
-                  const CircularProgressIndicator(color: Colors.blue))
-          : _isError
-              ? Center(child: Text(_error))
-              : Stack(
-                  children: [
-                    InAppWebView(
-                      // initialOptions: InAppWebViewGroupOptions(
-                      //     crossPlatform:
-                      //         InAppWebViewOptions(javaScriptEnabled: true)),
-                      onWebViewCreated: (controller) {
-                        _webViewController = controller;
-                        _startPayment();
-                      },
-                      onLoadStop: (controller, url) async {
-                        if (url != null &&
-                            url.queryParameters.containsKey('success') &&
-                            url.queryParameters['success'] == 'true') {
-                          var orderData = await getOrderInfo(
-                              authToken: _authToken!, orderID: _orderID!);
+    return PopScope(
+      canPop: automaticallyImplyLeading,
+      child: Scaffold(
+        backgroundColor: Colors.grey.shade50,
+        appBar: widget.appBar ??
+            AppBar(
+                centerTitle: true,
+                automaticallyImplyLeading: automaticallyImplyLeading,
+                title: const Text('Paymob Payment'),
+                backgroundColor: Colors.grey.shade50),
+        body: _isLoading
+            ? Center(
+                child: widget.loadingIndicator ??
+                    const CircularProgressIndicator(color: Colors.blue))
+            : _isError
+                ? Center(child: Text(_error))
+                : Stack(
+                    children: [
+                      InAppWebView(
+                        // initialOptions: InAppWebViewGroupOptions(
+                        //     crossPlatform:
+                        //         InAppWebViewOptions(javaScriptEnabled: true)),
+                        onWebViewCreated: (controller) {
+                          _webViewController = controller;
+                          _startPayment();
+                        },
+                        onLoadStop: (controller, url) async {
+                          if (url != null &&
+                              url.queryParameters.containsKey('success') &&
+                              url.queryParameters['success'] == 'true') {
+                            setState(() {
+                              automaticallyImplyLeading = true;
+                            });
+                            var orderData = await getOrderInfo(
+                                authToken: _authToken!, orderID: _orderID!);
 
-                          Map<String, dynamic> data = {
-                            'error': orderData['error'],
-                            'success': orderData['data']['success'],
-                            'amount_cents': orderData['data']['amount_cents'],
-                            'order_id': orderData['data']['order']['id'],
-                            'created_at': orderData['data']['order']
-                                ['created_at'],
-                            'delivery_needed': orderData['data']['order']
-                                ['delivery_needed'],
-                            'currency': orderData['data']['payment_key_claims']
-                                ['currency'],
-                            'first_name': orderData['data']
-                                    ['payment_key_claims']['billing_data']
-                                ['first_name'],
-                            'last_name': orderData['data']['payment_key_claims']
-                                ['billing_data']['last_name'],
-                            'street': orderData['data']['payment_key_claims']
-                                ['billing_data']['street'],
-                            'building': orderData['data']['payment_key_claims']
-                                ['billing_data']['building'],
-                            'floor': orderData['data']['payment_key_claims']
-                                ['billing_data']['floor'],
-                            'apartment': orderData['data']['payment_key_claims']
-                                ['billing_data']['apartment'],
-                            'city': orderData['data']['payment_key_claims']
-                                ['billing_data']['city'],
-                            'email': orderData['data']['payment_key_claims']
-                                ['billing_data']['email'],
-                            'phone_number': orderData['data']
-                                    ['payment_key_claims']['billing_data']
-                                ['phone_number'],
-                            'shipping_method': orderData['data']
-                                    ['payment_key_claims']['billing_data']
-                                ['shipping_method'],
-                            'postal_code': orderData['data']
-                                    ['payment_key_claims']['billing_data']
-                                ['postal_code'],
-                            'state': orderData['data']['payment_key_claims']
-                                ['billing_data']['state'],
-                          };
-                          widget.successResult(data);
-                        }
-                      },
-                      onProgressChanged: (controller, progress) {
-                        setState(() {
-                          _progress = progress / 100;
-                        });
-                      },
-                    ),
-                    _progress < 1
-                        ? SizedBox(
-                            height: 3,
-                            child: LinearProgressIndicator(
-                              value: _progress,
-                              color: Colors.blue,
-                            ),
-                          )
-                        : const SizedBox(),
-                  ],
-                ),
+                            Map<String, dynamic> data = {
+                              'error': orderData['error'],
+                              'success': orderData['data']['success'],
+                              'transactionId': orderData['data']['id'],
+                              'amount_cents': orderData['data']['amount_cents'],
+                              'order_id': orderData['data']['order']['id'],
+                              'created_at': orderData['data']['order']
+                                  ['created_at'],
+                              'delivery_needed': orderData['data']['order']
+                                  ['delivery_needed'],
+                              'currency': orderData['data']
+                                  ['payment_key_claims']['currency'],
+                              'first_name': orderData['data']
+                                      ['payment_key_claims']['billing_data']
+                                  ['first_name'],
+                              'last_name': orderData['data']
+                                      ['payment_key_claims']['billing_data']
+                                  ['last_name'],
+                              'street': orderData['data']['payment_key_claims']
+                                  ['billing_data']['street'],
+                              'building': orderData['data']
+                                      ['payment_key_claims']['billing_data']
+                                  ['building'],
+                              'floor': orderData['data']['payment_key_claims']
+                                  ['billing_data']['floor'],
+                              'apartment': orderData['data']
+                                      ['payment_key_claims']['billing_data']
+                                  ['apartment'],
+                              'city': orderData['data']['payment_key_claims']
+                                  ['billing_data']['city'],
+                              'email': orderData['data']['payment_key_claims']
+                                  ['billing_data']['email'],
+                              'phone_number': orderData['data']
+                                      ['payment_key_claims']['billing_data']
+                                  ['phone_number'],
+                              'shipping_method': orderData['data']
+                                      ['payment_key_claims']['billing_data']
+                                  ['shipping_method'],
+                              'postal_code': orderData['data']
+                                      ['payment_key_claims']['billing_data']
+                                  ['postal_code'],
+                              'state': orderData['data']['payment_key_claims']
+                                  ['billing_data']['state'],
+                            };
+
+                            widget.successResult(data);
+                          }
+                          if (url != null &&
+                              url.queryParameters['success'] == 'false') {
+                            setState(() {
+                              automaticallyImplyLeading = true;
+                            });
+                          }
+                        },
+                        onProgressChanged: (controller, progress) {
+                          setState(() {
+                            _progress = progress / 100;
+                          });
+                        },
+                      ),
+                      _progress < 1
+                          ? SizedBox(
+                              height: 3,
+                              child: LinearProgressIndicator(
+                                value: _progress,
+                                color: Colors.blue,
+                              ),
+                            )
+                          : const SizedBox(),
+                    ],
+                  ),
+      ),
     );
   }
 }
