@@ -2,6 +2,7 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
+import 'package:flutter_paymob_egypt/src/app_bar_model.dart';
 import 'package:flutter_paymob_egypt/src/card_info.dart';
 import 'billing_data.dart';
 import 'items.dart';
@@ -24,7 +25,7 @@ class FlutterPaymobPayment extends StatefulWidget {
   final BillingData? billingData;
   final List<Items>? items;
   final Widget? loadingIndicator;
-  final PreferredSizeWidget? appBar;
+  final AppBarModel? appBar;
 
   @override
   State<FlutterPaymobPayment> createState() => _FlutterPaymobPaymentState();
@@ -39,6 +40,7 @@ class _FlutterPaymobPaymentState extends State<FlutterPaymobPayment> {
   double _progress = 0;
   String _error = '';
   bool automaticallyImplyLeading = false;
+  bool isClickButton = false;
 
   @override
   void initState() {
@@ -76,7 +78,6 @@ class _FlutterPaymobPaymentState extends State<FlutterPaymobPayment> {
           setState(() {
             _isError = true;
             _error = finalToken['message'];
-            automaticallyImplyLeading = true;
           });
         }
       } else {
@@ -84,7 +85,6 @@ class _FlutterPaymobPaymentState extends State<FlutterPaymobPayment> {
         setState(() {
           _isError = true;
           _error = orderID['message'];
-          automaticallyImplyLeading = true;
         });
       }
     } else {
@@ -92,7 +92,6 @@ class _FlutterPaymobPaymentState extends State<FlutterPaymobPayment> {
       setState(() {
         _isError = true;
         _error = authToken['message'];
-        automaticallyImplyLeading = true;
       });
     }
 
@@ -102,8 +101,8 @@ class _FlutterPaymobPaymentState extends State<FlutterPaymobPayment> {
     }
   }
 
-  void _startPayment() async {
-    _webViewController?.loadUrl(
+  Future<void> _startPayment() async {
+    await _webViewController?.loadUrl(
         urlRequest: URLRequest(
       url: WebUri(
           'https://accept.paymob.com/api/acceptance/iframes/${widget.cardInfo.iframesID}?payment_token=$_token'),
@@ -116,12 +115,13 @@ class _FlutterPaymobPaymentState extends State<FlutterPaymobPayment> {
       canPop: automaticallyImplyLeading,
       child: Scaffold(
         backgroundColor: Colors.grey.shade50,
-        appBar: widget.appBar ??
-            AppBar(
-                centerTitle: true,
-                automaticallyImplyLeading: automaticallyImplyLeading,
-                title: const Text('Paymob Payment'),
-                backgroundColor: Colors.grey.shade50),
+        appBar: AppBar(
+            centerTitle: widget.appBar?.centerTitle,
+            automaticallyImplyLeading: automaticallyImplyLeading,
+            title: widget.appBar?.title ?? const Text('Paymob Payment'),
+            backgroundColor:
+                widget.appBar?.backgroundColor ?? Colors.grey.shade50,
+            actions: widget.appBar?.actions),
         body: _isLoading
             ? Center(
                 child: widget.loadingIndicator ??
@@ -134,9 +134,17 @@ class _FlutterPaymobPaymentState extends State<FlutterPaymobPayment> {
                         // initialOptions: InAppWebViewGroupOptions(
                         //     crossPlatform:
                         //         InAppWebViewOptions(javaScriptEnabled: true)),
-                        onWebViewCreated: (controller) {
+                        onWebViewCreated: (controller) async {
                           _webViewController = controller;
-                          _startPayment();
+                          await _startPayment();
+                          setState(() {
+                            automaticallyImplyLeading = true;
+                          });
+                        },
+                        onUpdateVisitedHistory: (controller, url, isReload) {
+                          setState(() {
+                            automaticallyImplyLeading = false;
+                          });
                         },
                         onLoadStop: (controller, url) async {
                           if (url != null &&
