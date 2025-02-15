@@ -1,11 +1,12 @@
 import 'dart:developer';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
-import 'package:flutter_paymob_egypt/src/app_bar_model.dart';
-import 'package:flutter_paymob_egypt/src/card_info.dart';
-import 'billing_data.dart';
-import 'items.dart';
+import 'package:flutter_paymob_egypt/src/models/app_bar_model.dart';
+import 'package:flutter_paymob_egypt/src/models/card_info.dart';
+import 'models/billing_data.dart';
+import 'models/items_model.dart';
 import 'paymob_service.dart';
 
 class FlutterPaymobPayment extends StatefulWidget {
@@ -23,7 +24,7 @@ class FlutterPaymobPayment extends StatefulWidget {
   final num totalPrice;
   final Function successResult, errorResult;
   final BillingData? billingData;
-  final List<Items>? items;
+  final List<ItemsModel>? items;
   final Widget? loadingIndicator;
   final AppBarModel? appBar;
 
@@ -40,7 +41,7 @@ class _FlutterPaymobPaymentState extends State<FlutterPaymobPayment> {
   double _progress = 0;
   String _error = '';
   bool automaticallyImplyLeading = false;
-  bool isClickButton = false;
+  bool androidFirst = true;
 
   @override
   void initState() {
@@ -141,11 +142,21 @@ class _FlutterPaymobPaymentState extends State<FlutterPaymobPayment> {
                             automaticallyImplyLeading = true;
                           });
                         },
-                        onUpdateVisitedHistory: (controller, url, isReload) {
-                          setState(() {
+                        onUpdateVisitedHistory:
+                            (controller, url, isReload) async {
+                          if (Platform.isIOS) {
                             automaticallyImplyLeading = false;
-                          });
+                          }
+                          if (Platform.isAndroid) {
+                            Uri uri = Uri.parse(url?.toString() ?? '');
+      
+                            if (uri.queryParameters['init'] == "false") {
+                              automaticallyImplyLeading = false;
+                            }
+                          }
+                          setState(() {});
                         },
+      
                         onLoadStop: (controller, url) async {
                           if (url != null &&
                               url.queryParameters.containsKey('success') &&
@@ -155,7 +166,7 @@ class _FlutterPaymobPaymentState extends State<FlutterPaymobPayment> {
                             });
                             var orderData = await getOrderInfo(
                                 authToken: _authToken!, orderID: _orderID!);
-
+      
                             Map<String, dynamic> data = {
                               'error': orderData['error'],
                               'success': orderData['data']['success'],
@@ -166,24 +177,21 @@ class _FlutterPaymobPaymentState extends State<FlutterPaymobPayment> {
                                   ['created_at'],
                               'delivery_needed': orderData['data']['order']
                                   ['delivery_needed'],
-                              'currency': orderData['data']
-                                  ['payment_key_claims']['currency'],
+                              'currency': orderData['data']['payment_key_claims']
+                                  ['currency'],
                               'first_name': orderData['data']
                                       ['payment_key_claims']['billing_data']
                                   ['first_name'],
-                              'last_name': orderData['data']
-                                      ['payment_key_claims']['billing_data']
-                                  ['last_name'],
+                              'last_name': orderData['data']['payment_key_claims']
+                                  ['billing_data']['last_name'],
                               'street': orderData['data']['payment_key_claims']
                                   ['billing_data']['street'],
-                              'building': orderData['data']
-                                      ['payment_key_claims']['billing_data']
-                                  ['building'],
+                              'building': orderData['data']['payment_key_claims']
+                                  ['billing_data']['building'],
                               'floor': orderData['data']['payment_key_claims']
                                   ['billing_data']['floor'],
-                              'apartment': orderData['data']
-                                      ['payment_key_claims']['billing_data']
-                                  ['apartment'],
+                              'apartment': orderData['data']['payment_key_claims']
+                                  ['billing_data']['apartment'],
                               'city': orderData['data']['payment_key_claims']
                                   ['billing_data']['city'],
                               'email': orderData['data']['payment_key_claims']
@@ -200,7 +208,7 @@ class _FlutterPaymobPaymentState extends State<FlutterPaymobPayment> {
                               'state': orderData['data']['payment_key_claims']
                                   ['billing_data']['state'],
                             };
-
+      
                             widget.successResult(data);
                           }
                           if (url != null &&
@@ -213,6 +221,9 @@ class _FlutterPaymobPaymentState extends State<FlutterPaymobPayment> {
                         onProgressChanged: (controller, progress) {
                           setState(() {
                             _progress = progress / 100;
+                            if (Platform.isAndroid) {
+                              log("progress: $progress");
+                            }
                           });
                         },
                       ),

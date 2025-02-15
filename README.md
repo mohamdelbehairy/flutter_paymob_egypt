@@ -14,7 +14,7 @@ To install the Flutter Payment Egypt Package, follow these steps
 1. Add the package to your project's dependencies in the `pubspec.yaml` file:
    ```yaml
    dependencies:
-     flutter_paymob_egypt: ^0.0.8
+     flutter_paymob_egypt: ^0.0.9
     ``` 
 2. Run the following command to fetch the package:
 

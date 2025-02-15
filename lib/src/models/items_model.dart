@@ -1,10 +1,10 @@
-class Items {
+class ItemsModel {
   String? name;
   String? amountCents;
   String? description;
   String? quantity;
 
-  Items({this.name, this.amountCents, this.description, this.quantity});
+  ItemsModel({this.name, this.amountCents, this.description, this.quantity});
 
   Map<String, dynamic> toJson() {
     return {

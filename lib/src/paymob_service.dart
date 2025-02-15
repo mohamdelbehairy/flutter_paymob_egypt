@@ -1,6 +1,6 @@
 import 'package:dio/dio.dart';
-import 'billing_data.dart';
-import 'items.dart';
+import 'models/billing_data.dart';
+import 'models/items_model.dart';
 
 Future<Map> getAuthToken({required String apiKey}) async {
   try {
@@ -29,7 +29,9 @@ Future<Map> getAuthToken({required String apiKey}) async {
 }
 
 Future<Map> getOrderID(
-    {required String authToken, required num price, List<Items>? items}) async {
+    {required String authToken,
+    required num price,
+    List<ItemsModel>? items}) async {
   try {
     var orderID = await Dio().post(
       _getOrderIdUrl,
@@ -70,7 +72,7 @@ Future<Map> getFinalToken(
       "integration_id": integrationID,
       "billing_data": billingData?.toJson() ?? BillingData().toJson(),
     });
-  //  log('finalToken: ${finalToken.data['token']}');
+    //  log('finalToken: ${finalToken.data['token']}');
     return {
       'error': 'false',
       'token': finalToken.data['token'],
@@ -96,10 +98,7 @@ Future<Map> getOrderInfo(
         'order_id': orderID,
       },
     );
-    return {
-      'error': 'false',
-      'data': orderInfo.data
-    };
+    return {'error': 'false', 'data': orderInfo.data};
   } on DioException catch (e) {
     return {
       'error': 'true',
